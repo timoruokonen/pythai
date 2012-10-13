@@ -1,31 +1,49 @@
 import random
 
+
 class global_variable:
     registered_global_variables = list()
 
     @staticmethod
-    def register(name, typeof):
-        global_variable.registered_global_variables.append([name, typeof])
+    def register(name, typeof, value):
+        global_variable.registered_global_variables.append([name, typeof, value])
 
     @staticmethod
     def generate(typeof):
+        retval = global_variable()
         while(True):
             var = global_variable.registered_global_variables[random.randrange(len(global_variable.registered_global_variables))]
-            print "Comparing: " + str(var[1]) + " to " + str(typeof)
+            #print "Comparing: " + str(var[1]) + " to " + str(typeof)
             if (var[1] == typeof):
                 break
-        return var[0]
+        retval.variable = var
+        return retval
         
     @staticmethod
-    def to_s():
+    def initial_definitions_to_s():
         retval = ""
         for variable in global_variable.registered_global_variables:
             #get the type as string from type
-            print str(variable[1])
-            retval += variable[0] + " = " + str(variable[1]).split(".")[1] + "()"
-            retval += "\n"
+            if (str(variable[1]).find("'")) > 0:
+                #python basic types are in form of <type 'bool'>
+                retval += variable[0] + " = " + str(variable[1]).split("'")[1] + "("
+            else:
+                #user types are python basic types <module.type>            
+                retval += variable[0] + " = " + str(variable[1]).split(".")[1] + "("
+            
+            #if initial constructor parameters were given, set those
+            if (variable[2] != None):
+                first = True
+                for parameter in variable[2]:
+                    if first == False:
+                        retval += ","
+                    first = False
+                    retval += str(parameter)
+            retval += ")\n"
         return retval
 
+    def to_s(self):
+        return self.variable[0]
 
 class literal:
     registered_literals = list()
@@ -78,7 +96,7 @@ class command:
         #if object was given, add that to the call
         if (self.command[2] != None):
             variable = global_variable.generate(self.command[2])
-            retval += variable + "."
+            retval += variable.to_s() + "."
         retval += self.command[0] + '('
         #add parameters to the call
         first = True
@@ -94,26 +112,46 @@ class command:
  
 
 
-class block:
-    registered_blocks = list()
+class if_statement:
+    registered_if_statements = list()
     maximumCommands = 5
 
     @staticmethod
-    def register(new_block):
-        block.registered_blocks.append(new_block)
-        print "Registered block: " + new_block
+    def register(typeof):
+        if_statement.registered_if_statements.append(typeof)
+        print "Registered if statement: " + str(typeof)
 
-    def __init__(self):
-        self.block = block.registered_blocks[random.randrange(len(self.registered_blocks))]
+    @staticmethod
+    def generate():
+        retval = if_statement()
+        retval.if_statement = if_statement.registered_if_statements[random.randrange(len(if_statement.registered_if_statements))]
 
-        self.commands = list()
-        for i in range(1 + random.randrange(block.maximumCommands)):
-            self.commands.append(command.generate())
+        #generate condition for the if clause
+        retval.condition = global_variable.generate(retval.if_statement)
+
+        #generate clauses inside the if block
+        retval.commands = list()
+        for i in range(1 + random.randrange(if_statement.maximumCommands)):
+            retval.commands.append(command.generate())
+
+        #generate clauses for possible else block
+        retval.else_commands = list()
+        if (random.randrange(2) == 1):
+            retval.else_condition = global_variable.generate(retval.if_statement)        
+            for i in range(1 + random.randrange(if_statement.maximumCommands)):
+                retval.else_commands.append(command.generate())
+            
+        return retval
     
     def to_s(self):
-        ret = self.block + ":"
+        ret = "if (" + self.condition.to_s() + "):"
         for c in self.commands:
             ret += "\n\t" + c.to_s()
+        if (len(self.else_commands) > 0):
+            ret += "\nelif(" + self.else_condition.to_s() + "):"
+            for c in self.else_commands:
+                ret += "\n\t" + c.to_s()
+        
         return ret
 
 
@@ -121,17 +159,17 @@ class code_generator:
     maximumBlocks = 2
 
     def __init__(self):
-        self.blocks = list()
+        self.if_statements = list()
 
     def generate(self):
         for i in range(1 + random.randrange(code_generator.maximumBlocks)):    
-            self.blocks.append(block()) 
+            self.if_statements.append(if_statement.generate()) 
 
     def to_s(self):
         retval = "";
-        retval += global_variable.to_s()
-        for block in self.blocks:
-            retval += block.to_s()
+        retval += global_variable.initial_definitions_to_s()
+        for if_statement in self.if_statements:
+            retval += if_statement.to_s()
             retval += "\n"
         return retval
 
@@ -150,19 +188,21 @@ class project:
     def start(self):
         print "Starting..." 
 
-        gv1 = global_variable.register("dummy", dummy_class)
+        global_variable.register("fact1", bool, [True])
+        global_variable.register("fact2", bool, [True])
+        global_variable.register("lie", bool, [False])
+        global_variable.register("dummy", dummy_class, None)
+        command.register(["operation1", None, dummy_class, [str]])
+        command.register(["operation2", None, dummy_class, [int]])
 
         literal.register("Kaljaa!!")
         literal.register("Kebabbia??")
         literal.register("Vodaa...?")
         literal.register("Jaloviinaa?")
         literal.register(1001)        
-        block.register("if (True)");
-        #block.register("if (False)");
-        command.register(["print", None, None, [type("a")]])
-        command.register(["print", None, None, [type(1)]])
-        command.register(["operation1", None, dummy_class, [type("a")]])
-        #command.register(["dummy.operation2", None, None, [type(1)]])
+        if_statement.register(bool);
+        command.register(["print", None, None, [str]])
+        command.register(["print", None, None, [int]])
 
         print "Generating code for generation one:"
         generator = code_generator()
