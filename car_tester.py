@@ -52,7 +52,7 @@ def do_simulation():
     simulation_on = True
     thegame.set_car_throttle(10)
     
-    while simulation_on:
+    while simulation_on and thegame.get_is_game_over() == False:
         if use_realtime:
             clock.tick(FPS)
             
@@ -65,11 +65,9 @@ def do_simulation():
             elif event.key == K_LEFT:
                 thegame.get_car().steer_left()
             elif event.key == K_UP:
-                thegame.set_car_throttle(10)
-                thegame.set_car_brake(0)
+                thegame.get_car().accelerate()
             elif event.key == K_DOWN:
-                thegame.set_car_brake(10)
-                thegame.set_car_throttle(0)
+                thegame.get_car().brake()
             elif event.key == K_f:
                 screen = pygame.display.set_mode((800, 600), FULLSCREEN)
             elif event.key == K_e:

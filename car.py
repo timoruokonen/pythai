@@ -32,7 +32,7 @@ class Car:
 
         self.max_brake_power = float(5000) # N
         self.throttle = float(0)
-        self.brake = float(0)
+        self.brake_status = float(0)
         self.steer = float(0)
         
         self.fbrake = array([0,0], dtype=float)
@@ -53,10 +53,18 @@ class Car:
         
     def set_brake(self, amount):
         #self.dprint('Setting brake to ' + str(amount))
-        self.brake = amount
+        self.brake_status = amount
     
     def set_steer(self, amount):
         self.steer = float(amount)
+       
+    def accelerate(self):
+        self.set_throttle(10)
+        self.set_brake(0)
+        
+    def brake(self):
+        self.set_throttle(0)
+        self.set_brake(10)
         
     def steer_right(self):
         self.steer -= 0.40
@@ -97,7 +105,7 @@ class Car:
         return roll
     
     def get_brake_power(self):
-        totalbrake = (self.brake / self.max_brake) * float(self.max_brake_power)
+        totalbrake = (self.brake_status / self.max_brake) * float(self.max_brake_power)
         rad = self.rot * math.pi / 180
         brake_x = float(totalbrake*(-1)*math.sin(rad))
         brake_y = float(totalbrake*math.cos(rad))

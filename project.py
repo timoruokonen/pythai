@@ -5,8 +5,8 @@ class global_variable:
     registered_global_variables = list()
 
     @staticmethod
-    def register(name, typeof, value):
-        global_variable.registered_global_variables.append([name, typeof, value])
+    def register(name, typeof, value, init_needed):
+        global_variable.registered_global_variables.append([name, typeof, value, init_needed])
 
     @staticmethod
     def generate(typeof):
@@ -23,6 +23,9 @@ class global_variable:
     def initial_definitions_to_s():
         retval = ""
         for variable in global_variable.registered_global_variables:
+            if (variable[3] == False):
+                continue
+
             #get the type as string from type
             if (str(variable[1]).find("'")) > 0:
                 #python basic types are in form of <type 'bool'>
@@ -156,7 +159,7 @@ class if_statement:
 
 
 class code_generator:
-    maximumBlocks = 2
+    maximumBlocks = 5
 
     def __init__(self):
         self.if_statements = list()
@@ -173,6 +176,11 @@ class code_generator:
             retval += "\n"
         return retval
 
+class code_merger:
+    def merge(self, code1, code2):
+        return code1
+
+
 
 class dummy_class:
     @staticmethod
@@ -188,10 +196,10 @@ class project:
     def start(self):
         print "Starting..." 
 
-        global_variable.register("fact1", bool, [True])
-        global_variable.register("fact2", bool, [True])
-        global_variable.register("lie", bool, [False])
-        global_variable.register("dummy", dummy_class, None)
+        global_variable.register("fact1", bool, [True], True)
+        global_variable.register("fact2", bool, [True], True)
+        global_variable.register("lie", bool, [False], True)
+        global_variable.register("dummy", dummy_class, None, True)
         command.register(["operation1", None, dummy_class, [str]])
         command.register(["operation2", None, dummy_class, [int]])
 
@@ -217,6 +225,12 @@ class project:
         print "-" * 40
         exec code
         print "-" * 40
+
+        merger = code_merger()
+        merged = merger.merge(generator, generator)
+        print "Merged Code:"
+        print merged.to_s()
+
 
 if __name__ == '__main__':
     print "This is the greatest project ever!"
