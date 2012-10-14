@@ -8,7 +8,10 @@ Main language in this project is python.
 
 Install instructions:
 =====================
-You will need following python libraries: pygame, numpy
+Python:
+Version 2.7 (32Bit) or higher is required.
+
+You will need following additional python libraries: pygame, numpy
 http://www.pygame.org/download.shtml
 http://numpy.scipy.org/
 
