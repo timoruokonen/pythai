@@ -117,7 +117,9 @@ class command:
 
 class if_statement:
     registered_if_statements = list()
-    maximumCommands = 5
+    maximumCommands = 4
+    maximumEquationsPerCondition = 2
+    maximumCodeDepth = 2
 
     @staticmethod
     def register(typeof):
@@ -125,17 +127,32 @@ class if_statement:
         print "Registered if statement: " + str(typeof)
 
     @staticmethod
-    def generate():
+    def generate(depth):
         retval = if_statement()
+        retval.depth = depth
         retval.if_statement = if_statement.registered_if_statements[random.randrange(len(if_statement.registered_if_statements))]
 
         #generate condition for the if clause
-        retval.condition = global_variable.generate(retval.if_statement)
+        retval.condition = global_variable.generate(retval.if_statement).to_s()
+        equation_count = 1
+        while (True):
+            next_equation = random.randrange(3) 
+            if (next_equation == 0 or equation_count > if_statement.maximumEquationsPerCondition):
+                break
+            if (next_equation == 1):
+                retval.condition += " and " +  global_variable.generate(retval.if_statement).to_s()
+            if (next_equation == 2):
+                retval.condition += " or " +  global_variable.generate(retval.if_statement).to_s()
+            equation_count += 1
 
         #generate clauses inside the if block
         retval.commands = list()
-        for i in range(1 + random.randrange(if_statement.maximumCommands)):
-            retval.commands.append(command.generate())
+        commands_count = 1 + random.randrange(if_statement.maximumCommands) 
+        for i in range(commands_count):
+            if (depth < if_statement.maximumCodeDepth and random.randrange(5) == 0):
+                retval.commands.append(if_statement.generate(depth + 1))
+            else:
+                retval.commands.append(command.generate())
 
         #generate clauses for possible else block
         retval.else_commands = list()
@@ -147,13 +164,17 @@ class if_statement:
         return retval
     
     def to_s(self):
-        ret = "if (" + self.condition.to_s() + "):"
+        indent = ""
+        for i in range(self.depth - 1):
+            indent += "\t"
+
+        ret = "\r" + indent + "if (" + self.condition + "):"
         for c in self.commands:
-            ret += "\n\t" + c.to_s()
+            ret += "\n\t" + indent + c.to_s()
         if (len(self.else_commands) > 0):
-            ret += "\nelif(" + self.else_condition.to_s() + "):"
+            ret += "\n" + indent + "elif(" + self.else_condition.to_s() + "):"
             for c in self.else_commands:
-                ret += "\n\t" + c.to_s()
+                ret += "\n\t" + indent + c.to_s()
         
         return ret
 
@@ -166,7 +187,7 @@ class code_generator:
 
     def generate(self):
         for i in range(1 + random.randrange(code_generator.maximumBlocks)):    
-            self.if_statements.append(if_statement.generate()) 
+            self.if_statements.append(if_statement.generate(1)) 
 
     def to_s(self):
         retval = "";

@@ -8,13 +8,16 @@ import curses
 import game
 import pygame
 from pygame.locals import *
+from os import path, access, R_OK  # W_OK for write permission.
 
 # How many "codes" is generated during each generation
-number_of_codes = 30
+number_of_codes = 20
 # How many game loops each generated code is executed
-number_of_rounds = 500
+number_of_rounds = 800
 # Show best code with graphics
 show_best_graphics = True
+# Save and load the best code so far
+save_load_best_code = True
 # Show all generated codes
 show_all_generated_code = False
 # Set true/false whether to draw graphics or not
@@ -35,21 +38,26 @@ thegame = game.Game()
 
 
 def intialize_code_generator():
+    if_statement.maximumCommands = 10
     global_variable.register("thegame", game.Game, [None], False)
     global_variable.register("thegame.get_car()", car.Car, [None], False)
 
     global_variable.register("thegame.get_score() > 0", bool, [None], False)
     global_variable.register("thegame.get_score() == 0", bool, [None], False)
     global_variable.register("thegame.get_score() < 0", bool, [None], False)
+    global_variable.register("thegame.get_score() > 10", bool, [None], False)
+    global_variable.register("thegame.get_score() < -10", bool, [None], False)
+    global_variable.register("thegame.get_score() > 20", bool, [None], False)
+    global_variable.register("thegame.get_score() < -20", bool, [None], False)
     global_variable.register("thegame.get_car().speed_kmh() <= 0", bool, [None], False)
     global_variable.register("thegame.get_car().speed_kmh() > 0", bool, [None], False)
     global_variable.register("thegame.get_car().speed_kmh() > 90", bool, [None], False)
+    global_variable.register("thegame.get_car().speed_kmh() > 40", bool, [None], False)
 
     literal.register(1)        
     literal.register(0)        
     command.register(["accelerate", None, car.Car, []])
     command.register(["brake", None, car.Car, []])
-    #command.register(["speed_kmh", None, car.Car, []])
     command.register(["steer_left", None, car.Car, []])
     command.register(["steer_right", None, car.Car, []])
     
@@ -73,15 +81,38 @@ def main():
 
     best_score = None
     best_code = None
+    
+    if (save_load_best_code):
+        old_best_file = "best_code.txt"
+        if path.exists(old_best_file) and path.isfile(old_best_file) and access(old_best_file, R_OK):
+            fileHandle = open (old_best_file, 'r' )
+            old_best_code = fileHandle.read()
+            fileHandle.close()
+            print "Loaded and executing previous King!"
+            best_score = do_simulation(old_best_code)
+            best_code = old_best_code
+        else:
+            print "Previous best code file could not be opened"
+
     for i in range(number_of_codes):
         code = generate_code()
         score = do_simulation(code)
-        if (i == 0 or score > best_score):
+        if (best_score == None or score > best_score):
             best_score = score
             best_code = code
     print "Best score was: " + str(best_score)
     print "Best code was"
     print code
+
+    if (save_load_best_code):
+        try:
+            fileHandle = open ( 'best_code.txt', 'w' )
+            fileHandle.write(best_code)
+            fileHandle.close()
+        except IOError as e:
+            print 'Could not open previous best code file'
+        
+
     if (show_best_graphics):
         print "showing best code graphically!"
         global use_graphics
