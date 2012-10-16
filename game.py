@@ -73,8 +73,12 @@ class Game:
         #points are not for wimps, you gotta be moving to get some plus points!
         #print "Score: " + str(score) + " Speed: " + str(self.thecar.speed_kmh()) 
         if (score > 0 and self.thecar.speed_kmh() <= 5):
-            score = 0
-        return score / 10.0
+            score = score / 10
+        return score / 5.0
+
+    def get_track_side(self):
+        side = self.thetrack.track_side(self.thecar.pos[x], self.thecar.pos[y])
+        return side
 
     def get_total_score(self):
         return self.total_score
@@ -83,8 +87,10 @@ class Game:
         return self.game_over
         
     def print_debug(self):
-        #print 'Current SCORE: ', self.get_score(), ' Checkpoint distance: ', \
-        self.get_checkpoint_distance(1, self.curr_checkpoint)
+        pass
+        #print 'Current SCORE: ', self.get_score(), ' Side: ', self.get_track_side()
+        #'  Checkpoint distance: ', \
+        #        self.get_checkpoint_distance(1, self.curr_checkpoint)
         
     def get_checkpoint_distance(self, player, number):
         return self.thetrack.distance_to_checkpoint(self.thecar.pos[x], self.thecar.pos[y], number)

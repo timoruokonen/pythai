@@ -1,4 +1,5 @@
 import random
+import copy
 
 
 class global_variable:
@@ -184,10 +185,20 @@ class code_generator:
 
     def __init__(self):
         self.if_statements = list()
-
-    def generate(self):
+        self.result = None
+    
+    @staticmethod
+    def generate():
+        retval = code_generator()
         for i in range(1 + random.randrange(code_generator.maximumBlocks)):    
-            self.if_statements.append(if_statement.generate(1)) 
+            retval.if_statements.append(if_statement.generate(1)) 
+        return retval
+
+    def get_random_branch(self):
+        return self.if_statements[random.randrange(len(self.if_statements))]
+
+    def replace_random_branch(self,branch):
+        self.if_statements[random.randrange(len(self.if_statements))] = branch
 
     def to_s(self):
         retval = "";
@@ -197,10 +208,62 @@ class code_generator:
             retval += "\n"
         return retval
 
-class code_merger:
-    def merge(self, code1, code2):
-        return code1
+    def set_result(self, result):
+        self.result = result
 
+    def get_result(self):
+        return self.result
+
+
+class code_merger:
+
+    @staticmethod
+    def merge(target_code, source_code):
+        #get random branches from target code and replace those to the target code
+        merged = copy.deepcopy(target_code)
+        branch = source_code.get_random_branch()
+        merged.replace_random_branch(branch)
+        return merged
+
+    @staticmethod
+    def merge_with_random(code):
+        merged = copy.deepcopy(code)
+        branch = if_statement.generate(1)
+        merged.replace_random_branch(branch)
+        return merged
+
+def code_compare(code1, code2):
+    return int(code2.get_result() - code1.get_result())
+
+
+class code_generation:
+    def __init__(self):
+        self.generation = list()
+
+    def add_code(self, code):
+        self.generation.append(code)
+
+    def get_codes(self):
+        return self.generation
+
+    def get_next_generation(self):
+        sorted_generation = sorted(self.generation, cmp=code_compare)
+        next_generation = code_generation()
+        
+        #add 20% old best codes directly
+        for h in range(len(sorted_generation) / 5):
+            next_generation.add_code(sorted_generation[h])
+
+        #then merge 40% best of the codes with the king :)
+        for h in range(int(len(sorted_generation) / 2.5)):
+            next_generation.add_code(code_merger.merge(sorted_generation[h], sorted_generation[0]))
+
+        #then add random branches to 40% of the best codes
+        left = len(sorted_generation) - len(next_generation.generation)
+        for h in range(left):
+            next_generation.add_code(code_merger.merge_with_random(sorted_generation[h]))
+
+        return next_generation
 
 
 class dummy_class:
@@ -234,8 +297,7 @@ class project:
         command.register(["print", None, None, [int]])
 
         print "Generating code for generation one:"
-        generator = code_generator()
-        generator.generate()
+        generator = code_generator().generate()
         code = generator.to_s()
         print "Code:"
         print "-" * 40
@@ -247,8 +309,7 @@ class project:
         exec code
         print "-" * 40
 
-        merger = code_merger()
-        merged = merger.merge(generator, generator)
+        merged = code_merger.merge(generator, generator)
         print "Merged Code:"
         print merged.to_s()
 

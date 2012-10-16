@@ -20,6 +20,10 @@ class Track:
     def distance_to_center(self, posx, posy):
         distance = math.sqrt((posx - self.center[x])**2 + (posy - self.center[y])**2)
         return math.fabs(self.radius-distance)
+
+    def track_side(self, posx, posy):
+        distance = math.sqrt((posx - self.center[x])**2 + (posy - self.center[y])**2)
+        return self.radius-distance
     
     def distance_to_checkpoint(self, posx, posy, number):
         checkpoint = self.checkpoints[number]

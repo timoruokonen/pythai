@@ -1,4 +1,4 @@
-from project import global_variable, literal, command, if_statement, code_generator 
+from project import global_variable, literal, command, if_statement, code_generator, code_merger, code_generation 
 import math
 import car
 import getopt
@@ -10,10 +10,12 @@ import pygame
 from pygame.locals import *
 from os import path, access, R_OK  # W_OK for write permission.
 
+# Number of generations
+number_of_generations = 5
 # How many "codes" is generated during each generation
 number_of_codes = 20
 # How many game loops each generated code is executed
-number_of_rounds = 800
+number_of_rounds = 500
 # Show best code with graphics
 show_best_graphics = True
 # Save and load the best code so far
@@ -24,6 +26,8 @@ show_all_generated_code = False
 use_graphics = False
 # Set true/false whether to simulate real time or not
 use_realtime = False
+# Should the code generation process stopped after current generation
+stop_after_next_generation = False
 
 print "Initializing game"
 pygame.init()
@@ -42,17 +46,20 @@ def intialize_code_generator():
     global_variable.register("thegame", game.Game, [None], False)
     global_variable.register("thegame.get_car()", car.Car, [None], False)
 
-    global_variable.register("thegame.get_score() > 0", bool, [None], False)
-    global_variable.register("thegame.get_score() == 0", bool, [None], False)
-    global_variable.register("thegame.get_score() < 0", bool, [None], False)
-    global_variable.register("thegame.get_score() > 10", bool, [None], False)
-    global_variable.register("thegame.get_score() < -10", bool, [None], False)
-    global_variable.register("thegame.get_score() > 20", bool, [None], False)
-    global_variable.register("thegame.get_score() < -20", bool, [None], False)
+    global_variable.register("thegame.get_track_side() > 0", bool, [None], False)
+    global_variable.register("thegame.get_track_side() == 0", bool, [None], False)
+    global_variable.register("thegame.get_track_side() < 0", bool, [None], False)
+    global_variable.register("thegame.get_track_side() > 10", bool, [None], False)
+    global_variable.register("thegame.get_track_side() < -10", bool, [None], False)
+    global_variable.register("thegame.get_track_side() > 50", bool, [None], False)
+    global_variable.register("thegame.get_track_side() < -50", bool, [None], False)
     global_variable.register("thegame.get_car().speed_kmh() <= 0", bool, [None], False)
     global_variable.register("thegame.get_car().speed_kmh() > 0", bool, [None], False)
     global_variable.register("thegame.get_car().speed_kmh() > 90", bool, [None], False)
     global_variable.register("thegame.get_car().speed_kmh() > 40", bool, [None], False)
+
+    global_variable.register("thegame.get_score() > 10", bool, [None], False)
+    global_variable.register("thegame.get_score() < -10", bool, [None], False)
 
     literal.register(1)        
     literal.register(0)        
@@ -79,8 +86,11 @@ def generate_code():
 def main(): 
     intialize_code_generator() 
 
-    best_score = None
-    best_code = None
+
+    generation = code_generation()
+    
+    """
+    TODO: Loading of old best code should be made with serialize/unserialize methods
     
     if (save_load_best_code):
         old_best_file = "best_code.txt"
@@ -88,22 +98,53 @@ def main():
             fileHandle = open (old_best_file, 'r' )
             old_best_code = fileHandle.read()
             fileHandle.close()
-            print "Loaded and executing previous King!"
-            best_score = do_simulation(old_best_code)
-            best_code = old_best_code
+            #print "Loaded and executing previous King!"
+            #best_score = do_simulation(old_best_code)
+            #best_code = old_best_code
         else:
             print "Previous best code file could not be opened"
+    """ 
+    global stop_after_next_generation
 
-    for i in range(number_of_codes):
-        code = generate_code()
-        score = do_simulation(code)
-        if (best_score == None or score > best_score):
-            best_score = score
-            best_code = code
-    print "Best score was: " + str(best_score)
-    print "Best code was"
-    print code
+    for i in range(number_of_generations):
+        best_score = None
+        best_code = None
+        
+        if (i == 0):      
+            #create the first generation
+            for h in range(number_of_codes): 
+                generation.add_code(code_generator.generate())
+        else:
+            generation = generation.get_next_generation()
+            """
+            next_generation = list()
+            next_generation.append(best_code)
+            #create 50% new codes and rest of the codes with the king :)
+            for h in range(number_of_codes / 2):
+                next_generation.append(code_generator.generate())
+            for h in range(number_of_codes / 2):
+                next_generation.append(code_merger.merge(generation[i], best_code))
+            generation = next_generation
+            """
 
+
+        #execute generation
+        for code in generation.get_codes(): 
+            score = do_simulation(code.to_s())
+            code.set_result(score)
+            if (best_score == None or score > best_score):
+                best_score = score
+                best_code = code
+        print "=" * 40
+        print "Best score in generation " + str(i) + " was: " + str(best_score)
+        #print "Best code was"
+        print "=" * 40
+        #print code.to_s()
+        if (stop_after_next_generation):
+            break
+
+    
+    """
     if (save_load_best_code):
         try:
             fileHandle = open ( 'best_code.txt', 'w' )
@@ -111,13 +152,17 @@ def main():
             fileHandle.close()
         except IOError as e:
             print 'Could not open previous best code file'
-        
+    """      
+    print "=" * 40
+    print "=" * 40
+    print best_code.to_s()
+    print "=" * 40
 
     if (show_best_graphics):
         print "showing best code graphically!"
         global use_graphics
         use_graphics = True
-        do_simulation(best_code)
+        do_simulation(best_code.to_s())
     
 def draw_screen():
     screen.fill(white)
@@ -140,8 +185,7 @@ def do_simulation(code):
             clock.tick(FPS)
 
         thegame.advance()
-        thegame.print_debug()
-        
+         
         if use_graphics:
             draw_screen()
 
@@ -150,7 +194,17 @@ def do_simulation(code):
         if (thegame.get_is_game_over()):
             simulation_on = False
 
-    print "Simulation ended"
+        for event in pygame.event.get():
+            if not hasattr(event, 'key'): continue
+            down = event.type == KEYDOWN     # key down or up?
+            if (down):
+                if event.key == K_SPACE:
+                    global stop_after_next_generation
+                    stop_after_next_generation = True
+                    print "== Requested stop after next generation end"
+                    
+        
+
     print "Resulting score: " + str(thegame.get_total_score())
     return thegame.get_total_score()
             
