@@ -13,9 +13,9 @@ from os import path, access, R_OK  # W_OK for write permission.
 # Number of generations
 number_of_generations = 5
 # How many "codes" is generated during each generation
-number_of_codes = 20
+number_of_codes = 100
 # How many game loops each generated code is executed
-number_of_rounds = 500
+number_of_rounds = 800
 # Show best code with graphics
 show_best_graphics = True
 # Save and load the best code so far

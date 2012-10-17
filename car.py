@@ -177,14 +177,4 @@ class Car:
         
         self.print_debug(screen)
 
-        
-        
-        
-        
-        
-        
-        
-    
-        
-        
-    
+         

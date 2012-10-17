@@ -236,7 +236,22 @@ def code_compare(code1, code2):
     return int(code2.get_result() - code1.get_result())
 
 
+#Code generation controls a population of codes. After codes are added
+#to the generation and all have been execued (given fitness value) the
+#next generation can be generated based on the old one.
 class code_generation:
+    #How many programs are taken into tournament when selecting candinates.
+    tournament_size = 7
+    
+    #How many percentage of the best codes in the old generation are taken in to the
+    #next generation automatically.
+    best_programs_percentage = 10
+    
+    #How many percentage of the codes are crossfitted with each other (child codes).
+    crossover_percentage = 80
+
+    #Note: rest of the generation is filled with tournament winners with random new branches.
+
     def __init__(self):
         self.generation = list()
 
@@ -246,22 +261,44 @@ class code_generation:
     def get_codes(self):
         return self.generation
 
+    #Selects code candinate from the current generation with tournament. Tournament
+    #means taking certain amount of codes from the generation and selecing the best
+    #from those.
+    def select_with_tournament(self):
+        best = self.generation[random.randrange(len(self.generation))]
+        for i in range(code_generation.tournament_size):
+            best_candinate = self.generation[random.randrange(len(self.generation))]
+            if code_compare(best, best_candinate) > 0:
+                best = best_candinate
+        return best 
+
+    #Returns the next code generation based on the current generation.
+    #Note: All codes must have a fitness value before calling this.
     def get_next_generation(self):
         sorted_generation = sorted(self.generation, cmp=code_compare)
         next_generation = code_generation()
+        population = len(self.generation)
         
-        #add 20% old best codes directly
-        for h in range(len(sorted_generation) / 5):
-            next_generation.add_code(sorted_generation[h])
+        #add best of the old generation "the king" always
+        next_generation.add_code(sorted_generation[0])
 
-        #then merge 40% best of the codes with the king :)
-        for h in range(int(len(sorted_generation) / 2.5)):
-            next_generation.add_code(code_merger.merge(sorted_generation[h], sorted_generation[0]))
+        #add configured % of tournament winners directly
+        for h in range(int(population * code_generation.best_programs_percentage / 100)):
+            while (True):
+                code_candinate = self.select_with_tournament()
+                if ((code_candinate in next_generation.generation) == False):
+                    next_generation.add_code(code_candinate)
+                    break
 
-        #then add random branches to 40% of the best codes
-        left = len(sorted_generation) - len(next_generation.generation)
+        #merge configured % programs together
+        for h in range(int(population * code_generation.crossover_percentage / 100)):
+            next_generation.add_code(code_merger.merge(
+                self.select_with_tournament(), self.select_with_tournament()))
+
+        #then add rest with random branches
+        left = population - len(next_generation.generation)
         for h in range(left):
-            next_generation.add_code(code_merger.merge_with_random(sorted_generation[h]))
+            next_generation.add_code(code_merger.merge_with_random(self.select_with_tournament()))
 
         return next_generation
 
