@@ -1,4 +1,5 @@
-from project import global_variable, literal, command, if_statement, code_generator, code_merger, code_generation 
+#from project import global_variable, literal, command, if_statement, code_generator, code_merger, code_generation 
+from project import *
 import math
 import car
 import getopt
@@ -11,11 +12,11 @@ from pygame.locals import *
 from os import path, access, R_OK  # W_OK for write permission.
 
 # Number of generations
-number_of_generations = 5
+number_of_generations = 8
 # How many "codes" is generated during each generation
-number_of_codes = 100
+number_of_codes = 50
 # How many game loops each generated code is executed
-number_of_rounds = 800
+number_of_rounds = 500
 # Show best code with graphics
 show_best_graphics = True
 # Save and load the best code so far
@@ -46,29 +47,29 @@ def intialize_code_generator():
     global_variable.register("thegame", game.Game, [None], False)
     global_variable.register("thegame.get_car()", car.Car, [None], False)
 
-    global_variable.register("thegame.get_track_side() > 0", bool, [None], False)
-    global_variable.register("thegame.get_track_side() == 0", bool, [None], False)
-    global_variable.register("thegame.get_track_side() < 0", bool, [None], False)
-    global_variable.register("thegame.get_track_side() > 10", bool, [None], False)
-    global_variable.register("thegame.get_track_side() < -10", bool, [None], False)
-    global_variable.register("thegame.get_track_side() > 50", bool, [None], False)
-    global_variable.register("thegame.get_track_side() < -50", bool, [None], False)
-    global_variable.register("thegame.get_car().speed_kmh() <= 0", bool, [None], False)
-    global_variable.register("thegame.get_car().speed_kmh() > 0", bool, [None], False)
-    global_variable.register("thegame.get_car().speed_kmh() > 90", bool, [None], False)
-    global_variable.register("thegame.get_car().speed_kmh() > 40", bool, [None], False)
+    equation.register("<", int)
+    equation.register(">", int)
+    equation.register("==", int)
 
-    global_variable.register("thegame.get_score() > 10", bool, [None], False)
-    global_variable.register("thegame.get_score() < -10", bool, [None], False)
-
-    literal.register(1)        
     literal.register(0)        
-    command.register(["accelerate", None, car.Car, []])
-    command.register(["brake", None, car.Car, []])
-    command.register(["steer_left", None, car.Car, []])
-    command.register(["steer_right", None, car.Car, []])
+    literal.register(-1)        
+    literal.register(1)        
+    literal.register(-10)        
+    literal.register(10)        
+    literal.register(-50)        
+    literal.register(50)        
+    literal.register(-90)        
+    literal.register(90)        
+
+    command.register("accelerate", None, car.Car, [])
+    command.register("brake", None, car.Car, [])
+    command.register("steer_left", None, car.Car, [])
+    command.register("steer_right", None, car.Car, [])
+    command.register("get_track_side", int, game.Game, [])
+    command.register("get_score", int, game.Game, [])
+    command.register("speed_kmh", int, car.Car, [])
     
-    if_statement.register(bool);
+    if_statement.register(int);
     
 
 def generate_code():

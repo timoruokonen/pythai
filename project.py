@@ -49,6 +49,39 @@ class global_variable:
     def to_s(self):
         return self.variable[0]
 
+class equation:
+    registered_equations = list()
+
+    @staticmethod
+    def register(operator, typeof):
+        equation.registered_equations.append([operator, typeof])
+
+    @staticmethod
+    def generate(typeof):
+        retval = equation()
+        while(True):
+            var = equation.registered_equations[random.randrange(len(equation.registered_equations))]
+            #print "Comparing: " + str(var[1]) + " to " + str(typeof)
+            if (var[1] == typeof):
+                break
+        retval.equation= var
+        retval.left_side = equation.generate_side(typeof)
+        retval.right_side = equation.generate_side(typeof)
+        return retval
+
+    @staticmethod
+    def generate_side(typeof):
+        source = random.randrange(2)
+        if (source == 0):
+            side = literal.generate(typeof)
+        else:
+            side = command.generate_with_type(typeof)
+        return side
+
+        
+    def to_s(self):
+        return "(" + self.left_side.to_s() + self.equation[0] + self.right_side.to_s() + ")"
+
 class literal:
     registered_literals = list()
 
@@ -78,15 +111,32 @@ class command:
     registered_commands = list()
 
     @staticmethod
-    def register(new_command):
-        command.registered_commands.append(new_command)
-        print "Registered command: " + new_command[0]
+    def register(name, return_type, typeof, parameters):
+        command.registered_commands.append([name, return_type, typeof, parameters])
+        print "Registered command: " + name
 
     @staticmethod
     def generate():
         #create a new command and randomize its type
         new_command = command()
         new_command.command = command.registered_commands[random.randrange(len(command.registered_commands))]
+
+        #create parameters to command if needed
+        new_command.parameters = []
+        if (len(new_command.command[3]) > 0):
+            for param in new_command.command[3]:
+                new_command.parameters.append(literal.generate(param))
+        return new_command    
+
+    @staticmethod
+    def generate_with_type(typeof):
+        #create a new command and randomize its type
+        new_command = command()
+        while True:
+            cmd = command.registered_commands[random.randrange(len(command.registered_commands))]
+            if (cmd[1] == typeof):
+                break
+        new_command.command = cmd
 
         #create parameters to command if needed
         new_command.parameters = []
@@ -134,16 +184,16 @@ class if_statement:
         retval.if_statement = if_statement.registered_if_statements[random.randrange(len(if_statement.registered_if_statements))]
 
         #generate condition for the if clause
-        retval.condition = global_variable.generate(retval.if_statement).to_s()
+        retval.condition = equation.generate(retval.if_statement).to_s()
         equation_count = 1
         while (True):
             next_equation = random.randrange(3) 
             if (next_equation == 0 or equation_count > if_statement.maximumEquationsPerCondition):
                 break
             if (next_equation == 1):
-                retval.condition += " and " +  global_variable.generate(retval.if_statement).to_s()
+                retval.condition += " and " +  equation.generate(retval.if_statement).to_s()
             if (next_equation == 2):
-                retval.condition += " or " +  global_variable.generate(retval.if_statement).to_s()
+                retval.condition += " or " +  equation.generate(retval.if_statement).to_s()
             equation_count += 1
 
         #generate clauses inside the if block
@@ -158,7 +208,7 @@ class if_statement:
         #generate clauses for possible else block
         retval.else_commands = list()
         if (random.randrange(2) == 1):
-            retval.else_condition = global_variable.generate(retval.if_statement)        
+            retval.else_condition = equation.generate(retval.if_statement)        
             for i in range(1 + random.randrange(if_statement.maximumCommands)):
                 retval.else_commands.append(command.generate())
             
@@ -307,10 +357,12 @@ class dummy_class:
     @staticmethod
     def operation1(text):
         print "dummy_class: operation1 " + text
+        return 1
 
     @staticmethod
     def operation2(number):
         print "dummy_calss: operation2 " + str(number)
+        return 2
 
 class project:
 
@@ -321,17 +373,20 @@ class project:
         global_variable.register("fact2", bool, [True], True)
         global_variable.register("lie", bool, [False], True)
         global_variable.register("dummy", dummy_class, None, True)
-        command.register(["operation1", None, dummy_class, [str]])
-        command.register(["operation2", None, dummy_class, [int]])
-
         literal.register("Kaljaa!!")
         literal.register("Kebabbia??")
         literal.register("Vodaa...?")
         literal.register("Jaloviinaa?")
         literal.register(1001)        
-        if_statement.register(bool);
-        command.register(["print", None, None, [str]])
-        command.register(["print", None, None, [int]])
+        literal.register(-50)
+        equation.register("<", int)
+        equation.register(">", int)
+        equation.register("==", int)
+        if_statement.register(int);
+        command.register("operation1", int, dummy_class, [str])
+        command.register("operation2", int, dummy_class, [int])
+        command.register("print", None, None, [str])
+        command.register("print", None, None, [int])
 
         print "Generating code for generation one:"
         generator = code_generator().generate()

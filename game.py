@@ -18,6 +18,7 @@ class Game:
         self.thecar = car.Car()
         self.thetrack = track.Track()    
         self.curr_checkpoint = 0
+        self.curr_lap_number = 0
         self.thecar.set_start_pos(50,300)
         self.start_time = pygame.time.get_ticks()
         self.total_score = 0.0
@@ -57,7 +58,8 @@ class Game:
                 self.end_time = pygame.time.get_ticks()
                 lap_time = float((self.end_time - self.start_time)) / 1000.0
                 print 'GOAL reached!!! Lap time: ', lap_time, 's'
-                self.total_score += Game.lap_finished_score
+                self.curr_lap_number += 1
+                self.total_score += Game.lap_finished_score * self.curr_lap_number
                 self.curr_checkpoint = 0
                 self.start_time = pygame.time.get_ticks()
 
@@ -69,7 +71,8 @@ class Game:
     # Get current game score
     def get_score(self):
         car_distance = self.thetrack.distance_to_center(self.thecar.pos[x], self.thecar.pos[y])
-        score = self.max_score - car_distance 
+        score = self.max_score - car_distance
+        #score = score * (self.curr_checkpoint + 1) * (self.curr_lap_number + 1)
         #points are not for wimps, you gotta be moving to get some plus points!
         #print "Score: " + str(score) + " Speed: " + str(self.thecar.speed_kmh()) 
         if (score > 0 and self.thecar.speed_kmh() <= 5):
