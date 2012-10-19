@@ -12,13 +12,15 @@ from pygame.locals import *
 from os import path, access, R_OK  # W_OK for write permission.
 
 # Number of generations
-number_of_generations = 8
+number_of_generations = 5
 # How many "codes" is generated during each generation
-number_of_codes = 50
+number_of_codes = 100
 # How many game loops each generated code is executed
-number_of_rounds = 500
+number_of_rounds = 600
 # Show best code with graphics
 show_best_graphics = True
+# Loop best run over and over
+loop_best_graphics = True
 # Save and load the best code so far
 save_load_best_code = True
 # Show all generated codes
@@ -164,6 +166,9 @@ def main():
         global use_graphics
         use_graphics = True
         do_simulation(best_code.to_s())
+        while loop_best_graphics:
+            do_simulation(best_code.to_s())
+
     
 def draw_screen():
     screen.fill(white)
@@ -203,6 +208,8 @@ def do_simulation(code):
                     global stop_after_next_generation
                     stop_after_next_generation = True
                     print "== Requested stop after next generation end"
+                if event.key == K_ESCAPE:
+                    sys.exit(0)
                     
         
 
