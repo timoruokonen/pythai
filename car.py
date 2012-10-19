@@ -175,6 +175,6 @@ class Car:
         # .. render the car to screen
         screen.blit(rotated, self.rect)
         
-        self.print_debug(screen)
+        #self.print_debug(screen)
 
          

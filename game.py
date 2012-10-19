@@ -24,6 +24,8 @@ class Game:
         self.total_score = 0.0
         self.game_over = False
         self.current_score = 0.0
+
+        self.font = pygame.font.Font(None, 20)
     
     def set_car_throttle(self, amount):
         self.thecar.set_throttle(amount)
@@ -57,29 +59,33 @@ class Game:
         
         # Have we reached next checkpoint? If so, choose next one
         if self.checkpoint_reached(1, self.curr_checkpoint):
-            print 'Checkpoint ', self.curr_checkpoint, ' reached!'
+            self.print_current_time('Checkpoint ' + str(self.curr_checkpoint) + ' reached!')
             self.total_score += Game.check_point_reached_score
 
             self.curr_checkpoint += 1
             if self.curr_checkpoint >= self.thetrack.get_num_checkpoints():
                 self.end_time = pygame.time.get_ticks()
                 lap_time = float((self.end_time - self.start_time)) / 1000.0
-                print 'GOAL reached!!! Lap time: ', lap_time, 's'
+                self.print_current_time('GOAL reached!!!')
                 self.curr_lap_number += 1
                 self.total_score += Game.lap_finished_score * self.curr_lap_number
                 self.curr_checkpoint = 0
                 self.start_time = pygame.time.get_ticks()
 
         
+    def print_current_time(self, remark):
+        current_real_time = float((pygame.time.get_ticks() - self.start_time)) / 1000.0
+        print remark, ' Real time: ', twodec(current_real_time), 's  Simulation time: ', twodec(self.time), 's'
+
     # Set time resolution for simulation
     def set_time_res(self, resolution):
         time_res = resolution
         
     # Get current game score
     def get_score(self):
-        # You get score for being close to track center
         car_distance = self.thetrack.distance_to_center(self.thecar.pos[x], self.thecar.pos[y])
-        # Being offroad will drop points in factor of 2
+        # You get points for being close to track center
+        # but being offroad will drop points in factor of 2
         score = self.max_score - 0.02*(car_distance**2.0)
         # Closer to next checkpoint will gain more points
         checkpoint_distance = self.thetrack.distance_to_checkpoint(self.thecar.pos[x], self.thecar.pos[y], self.curr_checkpoint)
@@ -93,6 +99,7 @@ class Game:
             score = score - 100
         else:
             score = score + (self.thecar.speed_kmh() / 2.0)
+
         return score / 5.0
 
     def get_track_side(self):
@@ -122,6 +129,25 @@ class Game:
     def draw(self, screen):
         self.thetrack.draw(screen)
         self.thecar.draw(screen)
+        self.print_debug_onscreen(screen)
+
+    def print_debug_onscreen(self, screen):
+        debugtext = 'Score: ' + twodec(self.current_score) + '  Total: ' \
+        + twodec(self.total_score) + ' (ESC to quit)'
+
+        # Render the text
+        text = self.font.render(debugtext, True, (0,
+        0, 0), (200, 200, 200))
+
+        # Create a rectangle
+        textRect = text.get_rect()
+
+        # Center the rectangle
+        textRect.centerx = 400
+        textRect.centery = 10
+
+        # Blit the text
+        screen.blit(text, textRect)
 
     
     
