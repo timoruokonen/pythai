@@ -1,6 +1,31 @@
 import random
 import copy
 
+#Global settings for genetic programming. 
+class gp_settings:
+    #How many commands there can be in total inside one block.
+    maximumCommandsPerBlock = 4
+
+    #How many equations one condition (in if clause) can have.
+    maximumEquationsPerCondition = 2
+
+    #How many inner if clauses there can be. Be carefull with this...
+    maximumCodeDepth = 2
+
+    #How many blocks in total the code can have.
+    maximumBlocks = 5
+
+    #How many programs are taken into tournament when selecting candinates.
+    tournament_size = 7
+
+    #How many percentage of the best codes in the old generation are taken in to the
+    #next generation through tournaments.
+    best_programs_percentage = 10
+    
+    #How many percentage of the codes are crossfitted with each other (child codes).
+    #Note: rest of the generation is filled with tournament winners with random new branches.
+    crossover_percentage = 85
+
 
 class global_variable:
     registered_global_variables = list()
@@ -168,9 +193,6 @@ class command:
 
 class if_statement:
     registered_if_statements = list()
-    maximumCommands = 4
-    maximumEquationsPerCondition = 2
-    maximumCodeDepth = 2
 
     @staticmethod
     def register(typeof):
@@ -188,7 +210,7 @@ class if_statement:
         equation_count = 1
         while (True):
             next_equation = random.randrange(3) 
-            if (next_equation == 0 or equation_count > if_statement.maximumEquationsPerCondition):
+            if (next_equation == 0 or equation_count > gp_settings.maximumEquationsPerCondition):
                 break
             if (next_equation == 1):
                 retval.condition += " and " +  equation.generate(retval.if_statement).to_s()
@@ -198,9 +220,9 @@ class if_statement:
 
         #generate clauses inside the if block
         retval.commands = list()
-        commands_count = 1 + random.randrange(if_statement.maximumCommands) 
+        commands_count = 1 + random.randrange(gp_settings.maximumCommandsPerBlock) 
         for i in range(commands_count):
-            if (depth < if_statement.maximumCodeDepth and random.randrange(5) == 0):
+            if (depth < gp_settings.maximumCodeDepth and random.randrange(5) == 0):
                 retval.commands.append(if_statement.generate(depth + 1))
             else:
                 retval.commands.append(command.generate())
@@ -209,7 +231,7 @@ class if_statement:
         retval.else_commands = list()
         if (random.randrange(2) == 1):
             retval.else_condition = equation.generate(retval.if_statement)        
-            for i in range(1 + random.randrange(if_statement.maximumCommands)):
+            for i in range(1 + random.randrange(gp_settings.maximumCommandsPerBlock)):
                 retval.else_commands.append(command.generate())
             
         return retval
@@ -231,7 +253,6 @@ class if_statement:
 
 
 class code_generator:
-    maximumBlocks = 5
 
     def __init__(self):
         self.if_statements = list()
@@ -240,7 +261,7 @@ class code_generator:
     @staticmethod
     def generate():
         retval = code_generator()
-        for i in range(1 + random.randrange(code_generator.maximumBlocks)):    
+        for i in range(1 + random.randrange(gp_settings.maximumBlocks)):    
             retval.if_statements.append(if_statement.generate(1)) 
         return retval
 
@@ -290,18 +311,7 @@ def code_compare(code1, code2):
 #to the generation and all have been execued (given fitness value) the
 #next generation can be generated based on the old one.
 class code_generation:
-    #How many programs are taken into tournament when selecting candinates.
-    tournament_size = 7
     
-    #How many percentage of the best codes in the old generation are taken in to the
-    #next generation through tournaments.
-    best_programs_percentage = 10
-    
-    #How many percentage of the codes are crossfitted with each other (child codes).
-    crossover_percentage = 85
-
-    #Note: rest of the generation is filled with tournament winners with random new branches.
-
     def __init__(self):
         self.generation = list()
 
@@ -316,7 +326,7 @@ class code_generation:
     #from those.
     def select_with_tournament(self):
         best = self.generation[random.randrange(len(self.generation))]
-        for i in range(code_generation.tournament_size):
+        for i in range(gp_settings.tournament_size):
             best_candinate = self.generation[random.randrange(len(self.generation))]
             if code_compare(best, best_candinate) > 0:
                 best = best_candinate
@@ -333,7 +343,7 @@ class code_generation:
         next_generation.add_code(sorted_generation[0])
 
         #add configured % of tournament winners directly
-        for h in range(int(population * code_generation.best_programs_percentage / 100)):
+        for h in range(int(population * gp_settings.best_programs_percentage / 100)):
             while (True):
                 code_candinate = self.select_with_tournament()
                 if ((code_candinate in next_generation.generation) == False):
@@ -341,7 +351,7 @@ class code_generation:
                     break
 
         #merge configured % programs together
-        for h in range(int(population * code_generation.crossover_percentage / 100)):
+        for h in range(int(population * gp_settings.crossover_percentage / 100)):
             next_generation.add_code(code_merger.merge(
                 self.select_with_tournament(), self.select_with_tournament()))
 

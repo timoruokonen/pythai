@@ -12,11 +12,11 @@ from pygame.locals import *
 from os import path, access, R_OK  # W_OK for write permission.
 
 # Number of generations
-number_of_generations = 5
+number_of_generations = 2
 # How many "codes" is generated during each generation
-number_of_codes = 100
+number_of_codes = 20
 # How many game loops each generated code is executed
-number_of_rounds = 600
+number_of_rounds = 500
 # Show best code with graphics
 show_best_graphics = True
 # Loop best run over and over
@@ -45,16 +45,24 @@ thegame = game.Game()
 
 
 def intialize_code_generator():
-    if_statement.maximumCommands = 20
-    code_generation.crossover_percentage = 85
+    #setup GP process
+    gp_settings.maximumCommandsPerBlock = 20
+    gp_settings.maximumEquationsPerCondition = 3
+    gp_settings.maximumCodeDepth = 2
+    gp_settings.maximumBlocks = 10
+    gp_settings.crossover_percentage = 85
+
     #game global variables
     global_variable.register("thegame", game.Game, [None], False)
     global_variable.register("thegame.get_car()", car.Car, [None], False)
 
+    #equations for if clauses
     equation.register("<", int)
     equation.register(">", int)
     equation.register("==", int)
+    equation.register("!=", int)
 
+    #literals that code can use
     literal.register(0)        
     literal.register(-1)        
     literal.register(1)        
@@ -73,7 +81,6 @@ def intialize_code_generator():
     literal.register(-1.5)
     literal.register(1.5)
 
-
     #game controls
     command.register("accelerate", None, car.Car, [])
     command.register("brake", None, car.Car, [])
@@ -83,7 +90,6 @@ def intialize_code_generator():
     command.register("get_track_side", int, game.Game, [])
     command.register("speed_kmh", int, car.Car, [])
     command.register("get_steer", float, car.Car, [])
-
     
     if_statement.register(int);
     
