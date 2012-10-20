@@ -56,6 +56,8 @@ def intialize_code_generator():
     literal.register(0)        
     literal.register(-1)        
     literal.register(1)        
+    #literal.register(-2)        
+    #literal.register(2)        
     literal.register(-10)        
     literal.register(10)        
     literal.register(-50)        
@@ -70,6 +72,8 @@ def intialize_code_generator():
     command.register("get_track_side", int, game.Game, [])
     command.register("get_score", int, game.Game, [])
     command.register("speed_kmh", int, car.Car, [])
+    #command.register("get_steer", int, car.Car, [])
+
     
     if_statement.register(int);
     
