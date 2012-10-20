@@ -53,6 +53,8 @@ class Game:
         #optimize by calculating and storing values to self
         self.distance_to_center = self.thetrack.distance_to_center(self.thecar.pos[x], self.thecar.pos[y])
         self.checkpoint_distance = self.thetrack.distance_to_checkpoint(self.thecar.pos[x], self.thecar.pos[y], self.curr_checkpoint) 
+        self.track_side = self.thetrack.track_side(self.thecar.pos[x], self.thecar.pos[y])
+         
 
         self.current_score = self.get_score() 
         if (self.total_score < Game.game_over_score):
@@ -111,8 +113,7 @@ class Game:
         return score / 5.0
 
     def get_track_side(self):
-        side = self.thetrack.track_side(self.thecar.pos[x], self.thecar.pos[y])
-        return side
+        return self.track_side
 
     def get_total_score(self):
         return self.total_score
