@@ -131,9 +131,9 @@ class Game:
         return self.thetrack.distance_to_checkpoint(self.thecar.pos[x], self.thecar.pos[y], number)
     
     def checkpoint_reached(self, player, number):
-        if self.get_checkpoint_distance(player, number) < Game.checkpoint_reach_tolerance:
+        if self.checkpoint_distance < Game.checkpoint_reach_tolerance:
             return True
-        else: return False
+        return False
         
     def draw(self, screen):
         self.thetrack.draw(screen)

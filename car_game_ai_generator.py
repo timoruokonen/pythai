@@ -10,8 +10,11 @@ import pygame
 from pygame.locals import *
 from os import path, access, R_OK  # W_OK for write permission.
 
+#Enable for profiling...
+#import cProfile
+
 # Number of generations
-number_of_generations = 5
+number_of_generations = 3
 # How many "codes" is generated during each generation
 number_of_codes = 50
 # How many game loops each generated code is executed
@@ -33,7 +36,6 @@ stop_after_next_generation = False
 
 print "Initializing game"
 pygame.init()
-#if (use_graphics):
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption('Pythai!')
 pygame.key.set_repeat(1, 50)
@@ -239,4 +241,7 @@ def do_simulation(code):
 
 if __name__ == "__main__":
     main()
+
+    #enable for profiling
+    #cProfile.run('main()', 'prof')
 
