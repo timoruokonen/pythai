@@ -8,6 +8,7 @@ from globals import *
 class Game:
     checkpoint_reach_tolerance = 150
     game_over_score = -500.0
+    game_over_distance = 400
     max_score = 100.0
     check_point_reached_score = 8000.0
     lap_finished_score = 100000.0
@@ -49,11 +50,15 @@ class Game:
         self.time += self.time_res
         self.thecar.update_position(self.time_res)
 
+        #optimize by calculating and storing values to self
+        self.distance_to_center = self.thetrack.distance_to_center(self.thecar.pos[x], self.thecar.pos[y])
+        self.checkpoint_distance = self.thetrack.distance_to_checkpoint(self.thecar.pos[x], self.thecar.pos[y], self.curr_checkpoint) 
+
         self.current_score = self.get_score() 
         if (self.total_score < Game.game_over_score):
             self.set_game_over()
 
-        if (self.thetrack.distance_to_center(self.thecar.pos[x], self.thecar.pos[y]) > 400):
+        if (self.distance_to_center > Game.game_over_distance):
             self.set_game_over()
 
         self.total_score += self.current_score
@@ -61,12 +66,9 @@ class Game:
         # Have we reached next checkpoint? If so, choose next one
         if self.checkpoint_reached(1, self.curr_checkpoint):
             self.print_current_time('Checkpoint ' + str(self.curr_checkpoint) + ' reached!')
-            #give points based on how closely the checkpoint was reached
-            checkpoint_distance = self.thetrack.distance_to_checkpoint(self.thecar.pos[x], self.thecar.pos[y], self.curr_checkpoint)
-            tol_percentage = (Game.checkpoint_reach_tolerance - checkpoint_distance) / Game.checkpoint_reach_tolerance
+            #give points based on how closely the checkpoint was reached 
+            tol_percentage = (Game.checkpoint_reach_tolerance - self.checkpoint_distance) / Game.checkpoint_reach_tolerance
             self.total_score += (1 + tol_percentage) * Game.check_point_reached_score
-            #print "dist: " + str(checkpoint_distance) + ", points: " + str((1 + tol_percentage) * Game.check_point_reached_score)
-
             self.curr_checkpoint += 1
 
             if self.curr_checkpoint >= self.thetrack.get_num_checkpoints():
@@ -89,14 +91,12 @@ class Game:
         
     # Get current game score
     def get_score(self):
-        car_distance = self.thetrack.distance_to_center(self.thecar.pos[x], self.thecar.pos[y])
         # You get points for being close to track center
         # but being offroad will drop points in factor of 2
         score = self.max_score
-        score -= 0.02*(car_distance**2.0)
+        score -= 0.02 * (self.distance_to_center ** 2.0)
         # Closer to next checkpoint will gain more points
-        checkpoint_distance = self.thetrack.distance_to_checkpoint(self.thecar.pos[x], self.thecar.pos[y], self.curr_checkpoint)
-        score -= checkpoint_distance / 4.3
+        score -= self.checkpoint_distance / 4.3
         #score = score * (self.curr_checkpoint + 1) * (self.curr_lap_number + 1)
         #points are not for wimps, you gotta be moving to get some plus points!
         #even more, punish the still-standing car, and award for speed!

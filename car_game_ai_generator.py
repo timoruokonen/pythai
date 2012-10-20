@@ -12,9 +12,9 @@ from pygame.locals import *
 from os import path, access, R_OK  # W_OK for write permission.
 
 # Number of generations
-number_of_generations = 2
+number_of_generations = 5
 # How many "codes" is generated during each generation
-number_of_codes = 20
+number_of_codes = 50
 # How many game loops each generated code is executed
 number_of_rounds = 500
 # Show best code with graphics
