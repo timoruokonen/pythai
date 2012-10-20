@@ -34,14 +34,23 @@ Usage:
 ==========================================================================
 
 **Playing the Game:**
-You can play the great car game and try to beat the computer times!
-1. python car_tester.py
-* Arrows for moving and Esc to quit
 
+You can play the great car game and try to beat the computer times!
+
+1. python car_tester.py
+
+    * Arrows for moving and Esc to quit
+
+<br>
 **Executing Genetic Programming Process:**
+
 Starts code generation process that tries to find the best possible solution for the car game.
+
 1. Check the settings from the beginning of the file first then
+
 2. python car_game_ai_generator.py
-* Spacebar stops the code generation after the current generation is executed
-* Esc quits the code generation without showing any results
-* After code generation is finished the log can be found from "best_codes.txt" (if enabled)
+
+    * Spacebar stops the code generation after the current generation is executed
+    * Esc quits the code generation without showing any results
+    * After code generation is finished the log can be found from "best_codes.txt" (if enabled)
+
