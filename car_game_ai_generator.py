@@ -1,4 +1,3 @@
-#from project import global_variable, literal, command, if_statement, code_generator, code_merger, code_generation 
 from project import *
 import math
 import car
@@ -111,6 +110,7 @@ def main():
 
 
     generation = code_generation()
+    generation.clear_logs()
     
     """
     TODO: Loading of old best code should be made with serialize/unserialize methods
@@ -232,9 +232,9 @@ def do_simulation(code):
                     sys.exit(0)
                     
         
-
-    print "Resulting score: " + str(thegame.get_total_score())
-    return thegame.get_total_score()
+    total_score = thegame.get_total_score()
+    print "Resulting score: " + str(total_score)
+    return total_score
             
 
 if __name__ == "__main__":

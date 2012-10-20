@@ -26,6 +26,11 @@ class gp_settings:
     #Note: rest of the generation is filled with tournament winners with random new branches.
     crossover_percentage = 85
 
+    #Log best codes to a file after each generation.
+    log_best_codes = True
+    log_best_codes_count = 5
+    log_best_codes_filename = "best_codes.txt"
+
 
 class global_variable:
     registered_global_variables = list()
@@ -314,9 +319,21 @@ class code_generation:
     
     def __init__(self):
         self.generation = list()
+        self.generation_number = 1
+
+    @staticmethod
+    def clear_logs():
+        try:
+            fileHandle = open (gp_settings.log_best_codes_filename, 'w' )
+            fileHandle.close()        
+        except IOError as e:
+            print 'Could not open ' + gp_settings.log_best_codes_filename + " for logging"
 
     def add_code(self, code):
         self.generation.append(code)
+
+    def get_generation_number(self):
+        return self.generation_number
 
     def get_codes(self):
         return self.generation
@@ -330,13 +347,31 @@ class code_generation:
             best_candinate = self.generation[random.randrange(len(self.generation))]
             if code_compare(best, best_candinate) > 0:
                 best = best_candinate
-        return best 
+        return best
+        
+    def log_best_codes(self, sorted_generation):
+        try:
+            fileHandle = open (gp_settings.log_best_codes_filename, 'a' )
+            fileHandle.write("Generation " + str(self.get_generation_number()) + " Best Scores:\n")
+            for i in range(gp_settings.log_best_codes_count):
+                fileHandle.write("\t" + str(i) + ". result = " + str(sorted_generation[i].get_result()) + "\n")
+            fileHandle.write(("-" * 40) +"\n")
+            fileHandle.close()
+        except IOError as e:
+            print 'Could not open ' + gp_settings.log_best_codes_filename + " for logging"
+
+     
 
     #Returns the next code generation based on the current generation.
     #Note: All codes must have a fitness value before calling this.
     def get_next_generation(self):
         sorted_generation = sorted(self.generation, cmp=code_compare)
+        if (gp_settings.log_best_codes):
+            self.log_best_codes(sorted_generation)
+
         next_generation = code_generation()
+        next_generation.generation_number = self.generation_number + 1
+
         population = len(self.generation)
         
         #add best of the old generation "the king" always
