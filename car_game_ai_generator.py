@@ -1,4 +1,4 @@
-from project import *
+import gp
 import math
 import car
 import getopt
@@ -45,57 +45,57 @@ thegame = game.Game()
 
 def intialize_code_generator():
     #setup GP process
-    gp_settings.maximumCommandsPerBlock = 20
-    gp_settings.maximumEquationsPerCondition = 3
-    gp_settings.maximumCodeDepth = 2
-    gp_settings.maximumBlocks = 10
-    gp_settings.crossover_percentage = 85
+    gp.settings.maximumCommandsPerBlock = 20
+    gp.settings.maximumEquationsPerCondition = 3
+    gp.settings.maximumCodeDepth = 2
+    gp.settings.maximumBlocks = 10
+    gp.settings.crossover_percentage = 85
 
     #game global variables
-    global_variable.register("thegame", game.Game, [None], False)
-    global_variable.register("thegame.get_car()", car.Car, [None], False)
+    gp.global_variable.register("thegame", game.Game, [None], False)
+    gp.global_variable.register("thegame.get_car()", car.Car, [None], False)
 
     #equations for if clauses
-    equation.register("<", int)
-    equation.register(">", int)
-    equation.register("==", int)
-    equation.register("!=", int)
+    gp.equation.register("<", int)
+    gp.equation.register(">", int)
+    gp.equation.register("==", int)
+    gp.equation.register("!=", int)
 
-    #literals that code can use
-    literal.register(0)        
-    literal.register(-1)        
-    literal.register(1)        
-    literal.register(-10)        
-    literal.register(10)        
-    literal.register(-50)        
-    literal.register(50)        
-    literal.register(-90)        
-    literal.register(90)        
+    #gp.literal. that code can use
+    gp.literal.register(0)        
+    gp.literal.register(-1)        
+    gp.literal.register(1)        
+    gp.literal.register(-10)        
+    gp.literal.register(10)        
+    gp.literal.register(-50)        
+    gp.literal.register(50)        
+    gp.literal.register(-90)        
+    gp.literal.register(90)        
 
-    literal.register(0.0)
-    literal.register(-0.5)
-    literal.register(0.5)
-    literal.register(-1.0)
-    literal.register(1.0)
-    literal.register(-1.5)
-    literal.register(1.5)
+    gp.literal.register(0.0)
+    gp.literal.register(-0.5)
+    gp.literal.register(0.5)
+    gp.literal.register(-1.0)
+    gp.literal.register(1.0)
+    gp.literal.register(-1.5)
+    gp.literal.register(1.5)
 
     #game controls
-    command.register("accelerate", None, car.Car, [])
-    command.register("brake", None, car.Car, [])
-    command.register("steer_left", None, car.Car, [])
-    command.register("steer_right", None, car.Car, [])
+    gp.command.register("accelerate", None, car.Car, [])
+    gp.command.register("brake", None, car.Car, [])
+    gp.command.register("steer_left", None, car.Car, [])
+    gp.command.register("steer_right", None, car.Car, [])
     #game state
-    command.register("get_track_side", int, game.Game, [])
-    command.register("speed_kmh", int, car.Car, [])
-    command.register("get_steer", float, car.Car, [])
+    gp.command.register("get_track_side", int, game.Game, [])
+    gp.command.register("speed_kmh", int, car.Car, [])
+    gp.command.register("get_steer", float, car.Car, [])
     
-    if_statement.register(int);
+    gp.if_statement.register(int);
     
 
 def generate_code():
     #print "Generating Controlling Code:"
-    generator = code_generator()
+    generator = gp.code()
     generator.generate()
     code = generator.to_s()
     if (show_all_generated_code):
@@ -109,7 +109,7 @@ def main():
     intialize_code_generator() 
 
 
-    generation = code_generation()
+    generation = gp.generation()
     generation.clear_logs()
     
     """
@@ -136,7 +136,7 @@ def main():
         if (i == 0):      
             #create the first generation
             for h in range(number_of_codes): 
-                generation.add_code(code_generator.generate())
+                generation.add_code(gp.code.generate())
         else:
             generation = generation.get_next_generation()
             """
