@@ -45,7 +45,9 @@ thegame = game.Game()
 
 
 def intialize_code_generator():
-    if_statement.maximumCommands = 10
+    if_statement.maximumCommands = 20
+    code_generation.crossover_percentage = 85
+    #game global variables
     global_variable.register("thegame", game.Game, [None], False)
     global_variable.register("thegame.get_car()", car.Car, [None], False)
 
@@ -56,8 +58,6 @@ def intialize_code_generator():
     literal.register(0)        
     literal.register(-1)        
     literal.register(1)        
-    #literal.register(-2)        
-    #literal.register(2)        
     literal.register(-10)        
     literal.register(10)        
     literal.register(-50)        
@@ -65,14 +65,24 @@ def intialize_code_generator():
     literal.register(-90)        
     literal.register(90)        
 
+    literal.register(0.0)
+    literal.register(-0.5)
+    literal.register(0.5)
+    literal.register(-1.0)
+    literal.register(1.0)
+    literal.register(-1.5)
+    literal.register(1.5)
+
+
+    #game controls
     command.register("accelerate", None, car.Car, [])
     command.register("brake", None, car.Car, [])
     command.register("steer_left", None, car.Car, [])
     command.register("steer_right", None, car.Car, [])
+    #game state
     command.register("get_track_side", int, game.Game, [])
-    command.register("get_score", int, game.Game, [])
     command.register("speed_kmh", int, car.Car, [])
-    #command.register("get_steer", int, car.Car, [])
+    command.register("get_steer", float, car.Car, [])
 
     
     if_statement.register(int);

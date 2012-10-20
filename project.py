@@ -294,11 +294,11 @@ class code_generation:
     tournament_size = 7
     
     #How many percentage of the best codes in the old generation are taken in to the
-    #next generation automatically.
+    #next generation through tournaments.
     best_programs_percentage = 10
     
     #How many percentage of the codes are crossfitted with each other (child codes).
-    crossover_percentage = 80
+    crossover_percentage = 85
 
     #Note: rest of the generation is filled with tournament winners with random new branches.
 

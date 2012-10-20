@@ -57,6 +57,9 @@ class Car:
     
     def set_steer(self, amount):
         self.steer = float(amount)
+
+    def get_steer(self):
+        return self.steer
        
     def accelerate(self):
         self.set_throttle(10)
