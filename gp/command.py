@@ -8,16 +8,35 @@ from literal import literal
 from global_variable import global_variable
 
 class command:
+    '''
+    Represents a command (function call) in the generated code. Commands can take parameters
+    and have a return value. 
+    '''
+
     registered_commands = list()
 
     @staticmethod
     def register(name, return_type, typeof, parameters):
+        '''
+        Static method for registering a new command type.
+
+        Parameters:
+            name - Name of the command. Must be the actual method/function name.
+            return_type - The return type of the command, can be None.
+            typeof - Type of the class that has this command. For example str. Type can be
+            also None which means that command is executed in global namespace.
+            parameters - Array of parameters that the command requires. Can be empty list.
+        '''
         command.registered_commands.append([name, return_type, typeof, parameters])
         print "Registered command: " + name
 
     @staticmethod
     def generate():
-        #create a new command and randomize its type
+        '''
+        Static method for generating a command instance. Generated command instance
+        will be randomly selected from the all registered commands. Returns the generated
+        command. 
+        '''
         new_command = command()
         new_command.command = command.registered_commands[random.randrange(len(command.registered_commands))]
 
@@ -30,7 +49,11 @@ class command:
 
     @staticmethod
     def generate_with_type(typeof):
-        #create a new command and randomize its type
+        '''
+        Static method for generating a command with specific return type. The new generated
+        command is randomly selected from all registered commands that have the given return
+        type.
+        '''
         new_command = command()
         while True:
             cmd = command.registered_commands[random.randrange(len(command.registered_commands))]
@@ -46,6 +69,7 @@ class command:
         return new_command    
         
     def to_s(self):
+        '''Returns the command as string (code). '''
         retval = ""
         #if object was given, add that to the call
         if (self.command[2] != None):

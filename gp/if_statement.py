@@ -9,15 +9,41 @@ from equation import equation
 from command import command
 
 class if_statement:
+    '''
+    Represents an if statement in the code. If statement can consists of multiple equations,
+    else blocks and each of those can have inner if statements. Each block contains commands. The number
+    of equations, commands, maximum block depth can be configured from the gp settings.
+
+    Example if statement:
+        if (equation1 and equation2):
+            if (equation3):
+                command1()
+                command2()
+            elif (equation4 or equation5 and equation6):
+                command12()
+    '''
     registered_if_statements = list()
 
     @staticmethod
     def register(typeof):
+        '''
+        Static method for registering an if statement.
+
+        Parameters:
+            typeof - If statements "compared to" type. For example int would produce if statements
+            that have equations returning integers.
+        '''
         if_statement.registered_if_statements.append(typeof)
         print "Registered if statement: " + str(typeof)
 
     @staticmethod
     def generate(depth):
+        '''
+        Static method for generating a new if statement. 
+
+        Parameters:
+            depth - The current code depth. Gp settings have a setting for maximum code depth.
+        '''
         retval = if_statement()
         retval.depth = depth
         retval.if_statement = if_statement.registered_if_statements[random.randrange(len(if_statement.registered_if_statements))]
@@ -54,6 +80,10 @@ class if_statement:
         return retval
     
     def to_s(self):
+        '''
+        Returns the if statement as string (code) including all the inner blocks
+        of the if statement.
+        '''
         indent = ""
         for i in range(self.depth - 1):
             indent += "\t"
