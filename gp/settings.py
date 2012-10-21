@@ -1,3 +1,9 @@
+"""
+@project: Pythai - Artificial Intellegence Project with Python
+@package: Genetic Programming
+@author: Timo Ruokonen (timoruokonen)
+"""
+
 #Global settings for genetic programming. 
 class settings:
     #How many commands there can be in total inside one block.

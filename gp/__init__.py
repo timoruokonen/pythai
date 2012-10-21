@@ -1,3 +1,8 @@
+"""
+@project: Pythai - Artificial Intellegence Project with Python
+@package: Genetic Programming
+@author: Timo Ruokonen (timoruokonen)
+"""
 from settings import settings
 from global_variable import global_variable
 from equation import equation

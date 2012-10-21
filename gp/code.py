@@ -1,3 +1,8 @@
+"""
+@project: Pythai - Artificial Intellegence Project with Python
+@package: Genetic Programming
+@author: Timo Ruokonen (timoruokonen)
+"""
 import random
 from settings import settings
 from global_variable import global_variable

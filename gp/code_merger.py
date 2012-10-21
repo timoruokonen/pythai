@@ -1,3 +1,8 @@
+"""
+@project: Pythai - Artificial Intellegence Project with Python
+@package: Genetic Programming
+@author: Timo Ruokonen (timoruokonen)
+"""
 import copy
 from if_statement import if_statement
 
