@@ -79,6 +79,42 @@ class if_statement:
             
         return retval
     
+    def get_all_branches(self):
+        '''Gets all sub branches (if statements) including the main branch of this if statement instance. '''
+        branches = list()
+        branches.append(self)
+        for branch in self.commands:
+            if isinstance(branch, if_statement):
+                branches += branch.get_all_branches()
+        return branches
+
+    def get_depth(self):
+        '''Returns the depth of the if statement. '''
+        return self.depth
+    
+    def set_depth(self, depth):
+        '''Sets depth to this instance and all its sub branches. '''
+        self.depth = depth
+        for branch in self.commands:
+            if isinstance(branch, if_statement):
+                branch.set_depth(depth + 1)
+
+    def assign(self, branch):
+        '''
+        Assigns another if statement instance to the current instance. 
+
+        Parameters:
+            branch - if_statement instance that is set to this instance.
+        '''
+        branch.set_depth(self.depth)
+        self.condition = branch.condition
+        self.commands = branch.commands
+        #A bit lame but else command list always exists but else condition does not if there is no
+        #else branch... TODO: Improve.
+        self.else_commands = branch.else_commands
+        if (len(branch.else_commands) > 0):
+            self.else_condition = branch.else_condition 
+     
     def to_s(self):
         '''
         Returns the if statement as string (code) including all the inner blocks

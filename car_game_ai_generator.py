@@ -14,9 +14,9 @@ from os import path, access, R_OK  # W_OK for write permission.
 #import cProfile
 
 # Number of generations
-number_of_generations = 4
+number_of_generations = 10
 # How many "codes" is generated during each generation
-number_of_codes = 50
+number_of_codes = 100
 # How many game loops each generated code is executed
 number_of_rounds = 500
 # Show best code with graphics
@@ -47,10 +47,10 @@ thegame = game.Game()
 
 def intialize_code_generator():
     #setup GP process
-    gp.settings.maximumCommandsPerBlock = 15
+    gp.settings.maximumCommandsPerBlock = 10
     gp.settings.maximumEquationsPerCondition = 3
-    gp.settings.maximumCodeDepth = 2
-    gp.settings.maximumBlocks = 10
+    gp.settings.maximumCodeDepth = 3
+    gp.settings.maximumBlocks = 5
     gp.settings.crossover_percentage = 85
 
     #game global variables

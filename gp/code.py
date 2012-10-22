@@ -4,6 +4,7 @@
 @author: Timo Ruokonen (timoruokonen)
 """
 import random
+import copy
 from settings import settings
 from global_variable import global_variable
 from if_statement import if_statement
@@ -36,18 +37,32 @@ class code:
         return retval
 
     def get_random_branch(self):
-        '''Returns a random branch from the current code instance. '''
-        return self.if_statements[random.randrange(len(self.if_statements))]
+        '''
+        Returns a copy of random branch (if_statement) from the current code instance. The
+        returned branch can be from any depth.
+        '''
+        branch = self.if_statements[random.randrange(len(self.if_statements))]
+        branches = branch.get_all_branches()
+        sub_branch = copy.deepcopy(branches[random.randrange(len(branches))])
+        return sub_branch
+        
 
     def replace_random_branch(self,branch):
         '''
         Replaces a randomly selected branch from the current code instance and replaces
-        it with a random branch.
+        it with a random branch. The randomly selected branch that is replaced can be from
+        any depth.
 
         Parameters:
             branch - Branch that is replaced to randomly selected branch of the current code.
         '''
-        self.if_statements[random.randrange(len(self.if_statements))] = branch
+        #first get random main if_statement branch
+        target_branch_index = random.randrange(len(self.if_statements)) 
+        #next get random sub branch from the main branch and do not make a copy of it!
+        branches = self.if_statements[target_branch_index].get_all_branches()
+        sub_branch = branches[random.randrange(len(branches))]
+
+        sub_branch.assign(branch)
 
     def to_s(self):
         '''Returns the code block instance as "real code" string. This method is used to execute the

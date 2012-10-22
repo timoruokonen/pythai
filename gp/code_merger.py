@@ -4,6 +4,7 @@
 @author: Timo Ruokonen (timoruokonen)
 """
 import copy
+import random
 from if_statement import if_statement
 
 class code_merger:
@@ -24,7 +25,9 @@ class code_merger:
         #get random branches from target code and replace those to the target code
         merged = copy.deepcopy(target_code)
         branch = source_code.get_random_branch()
+
         merged.replace_random_branch(branch)
+
         return merged
 
     @staticmethod
