@@ -4,13 +4,13 @@ import gp
 
 class dummy_class:
     @staticmethod
-    def operation1(text):
-        print "dummy_class: operation1 " + text
+    def do_stuff(text):
+        print "dummy_class: do stuff " + text
         return 1
 
     @staticmethod
-    def operation2(number):
-        print "dummy_calss: operation2 " + str(number)
+    def get_state(number):
+        print "dummy_calss: get_state " + str(number)
         return 2
 
 class project:
@@ -32,10 +32,10 @@ class project:
         gp.equation.register(">", int)
         gp.equation.register("==", int)
         gp.if_statement.register(int);
-        gp.command.register("operation1", int, dummy_class, [str])
-        gp.command.register("operation2", int, dummy_class, [int])
-        gp.command.register("print", None, None, [str])
-        gp.command.register("print", None, None, [int])
+        gp.command.register("do_stuff", int, dummy_class, [str], False)
+        gp.command.register("get_state", int, dummy_class, [int], True)
+        gp.command.register("print", None, None, [str], False)
+        gp.command.register("print", None, None, [int], False)
 
         print "Generating code for generation one:"
         generator = gp.code.generate()

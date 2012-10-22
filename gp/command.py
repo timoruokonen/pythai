@@ -16,7 +16,7 @@ class command:
     registered_commands = list()
 
     @staticmethod
-    def register(name, return_type, typeof, parameters):
+    def register(name, return_type, typeof, parameters, state_only):
         '''
         Static method for registering a new command type.
 
@@ -26,8 +26,11 @@ class command:
             typeof - Type of the class that has this command. For example str. Type can be
             also None which means that command is executed in global namespace.
             parameters - Array of parameters that the command requires. Can be empty list.
+            state_only - Is the command only about the state. If true, this command will no be
+            used in the blocks where the actual commands are executed. It will only be used 
+            in the equations. If false, this command can ne used in both places.
         '''
-        command.registered_commands.append([name, return_type, typeof, parameters])
+        command.registered_commands.append([name, return_type, typeof, parameters, state_only])
         print "Registered command: " + name
 
     @staticmethod
@@ -38,7 +41,12 @@ class command:
         command. 
         '''
         new_command = command()
-        new_command.command = command.registered_commands[random.randrange(len(command.registered_commands))]
+
+        #Find a command that is not a status command
+        while (True):
+            new_command.command = command.registered_commands[random.randrange(len(command.registered_commands))]
+            if (new_command.command[4] == False):
+                break
 
         #create parameters to command if needed
         new_command.parameters = []

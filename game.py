@@ -116,6 +116,12 @@ class Game:
         return self.track_side
 
     def get_total_score(self):
+        #Don't let the bad end ruin the whole game. At least give half of the points gathered
+        #from checkpoints and laps...
+        if (self.curr_lap_number > 0 or self.curr_checkpoint > 0): 
+            points_from_checkpoints = self.curr_lap_number * (Game.lap_finished_score + self.curr_lap_number * Game.check_point_reached_score * self.thetrack.get_num_checkpoints()) + self.curr_checkpoint * Game.check_point_reached_score
+            return max(self.total_score, points_from_checkpoints / 2)
+
         return self.total_score
 
     def get_is_game_over(self):

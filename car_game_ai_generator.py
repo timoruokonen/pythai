@@ -14,7 +14,7 @@ from os import path, access, R_OK  # W_OK for write permission.
 #import cProfile
 
 # Number of generations
-number_of_generations = 5
+number_of_generations = 4
 # How many "codes" is generated during each generation
 number_of_codes = 50
 # How many game loops each generated code is executed
@@ -47,7 +47,7 @@ thegame = game.Game()
 
 def intialize_code_generator():
     #setup GP process
-    gp.settings.maximumCommandsPerBlock = 20
+    gp.settings.maximumCommandsPerBlock = 15
     gp.settings.maximumEquationsPerCondition = 3
     gp.settings.maximumCodeDepth = 2
     gp.settings.maximumBlocks = 10
@@ -83,14 +83,14 @@ def intialize_code_generator():
     gp.literal.register(1.5)
 
     #game controls
-    gp.command.register("accelerate", None, car.Car, [])
-    gp.command.register("brake", None, car.Car, [])
-    gp.command.register("steer_left", None, car.Car, [])
-    gp.command.register("steer_right", None, car.Car, [])
+    gp.command.register("accelerate", None, car.Car, [], False)
+    gp.command.register("brake", None, car.Car, [], False)
+    gp.command.register("steer_left", None, car.Car, [], False)
+    gp.command.register("steer_right", None, car.Car, [], False)
     #game state
-    gp.command.register("get_track_side", int, game.Game, [])
-    gp.command.register("speed_kmh", int, car.Car, [])
-    gp.command.register("get_steer", float, car.Car, [])
+    gp.command.register("get_track_side", int, game.Game, [], True)
+    gp.command.register("speed_kmh", int, car.Car, [], True)
+    gp.command.register("get_steer", float, car.Car, [], True)
     
     gp.if_statement.register(int);
     
