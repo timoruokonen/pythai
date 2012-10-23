@@ -53,7 +53,7 @@ class if_statement:
         equation_count = 1
         while (True):
             next_equation = random.randrange(3) 
-            if (next_equation == 0 or equation_count > settings.maximumEquationsPerCondition):
+            if (next_equation == 0 or equation_count >= settings.maximumEquationsPerCondition):
                 break
             if (next_equation == 1):
                 retval.condition += " and " +  equation.generate(retval.if_statement).to_s()

@@ -37,11 +37,13 @@ class generation:
         except IOError as e:
             print 'Could not open ' + settings.log_best_codes_filename + " for logging"
 
-    def add_code(self, code):
+    def add_code(self, code, moved_unchanged = False):
         '''Adds a code to the generation. 
         Parameters:
             code - Code to be added.
+            moved_unchanged - Was the code moved unchanged. This can be used for optimizing the runs.
         '''
+        code.set_moved_unchanged(moved_unchanged)
         self.generation.append(code)
 
     def get_generation_number(self):
@@ -93,14 +95,14 @@ class generation:
         population = len(self.generation)
         
         #add best of the old generation "the king" always
-        next_generation.add_code(sorted_generation[0])
+        next_generation.add_code(sorted_generation[0], True)
 
         #add configured % of tournament winners directly
         for h in range(int(population * settings.best_programs_percentage / 100)):
             while (True):
                 code_candinate = self._select_with_tournament()
                 if ((code_candinate in next_generation.generation) == False):
-                    next_generation.add_code(code_candinate)
+                    next_generation.add_code(code_candinate, True)
                     break
 
         #merge configured % programs together

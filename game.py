@@ -6,7 +6,7 @@ import pygame
 from globals import *
 
 class Game:
-    checkpoint_reach_tolerance = 150
+    checkpoint_reach_tolerance = 130
     game_over_score = -500.0
     game_over_distance = 400
     max_score = 100.0

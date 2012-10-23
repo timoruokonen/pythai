@@ -26,6 +26,7 @@ class code:
         instances. Use static method generate instead.'''
         self.if_statements = list()
         self.result = None
+        self.was_moved_unchanged = False
     
     @staticmethod
     def generate():
@@ -87,4 +88,19 @@ class code:
     def get_result(self):
         '''Gets the result (fitness) for this code instance. '''
         return self.result
+
+    def set_moved_unchanged(self, unchanged):
+        '''
+        Sets the property indicating wether the code was moved from the previous generation
+        unchanged to the current generation. This property can be used for optimizing the runs
+        if the domain does not change between different runs.
+
+        Parameters:
+            unchanged - Was the code moved unchanged from the previous generation.
+        '''
+        self.was_moved_unchanged = unchanged
+
+    def get_moved_unchanged(self):
+        '''Returns wether the code was moved unchanged from the previous generation to the current.'''
+        return self.was_moved_unchanged
 

@@ -16,7 +16,7 @@ from os import path, access, R_OK  # W_OK for write permission.
 # Number of generations
 number_of_generations = 10
 # How many "codes" is generated during each generation
-number_of_codes = 100
+number_of_codes = 50
 # How many game loops each generated code is executed
 number_of_rounds = 500
 # Show best code with graphics
@@ -155,8 +155,15 @@ def main():
 
         #execute generation
         for code in generation.get_codes(): 
-            score = do_simulation(code.to_s())
-            code.set_result(score)
+            #The game is always the same. Do not execute codes that were moved directly from the
+            #previous generation
+            if (code.get_moved_unchanged()):
+                score = code.get_result()
+                print "Directly moved code not executed, score: " + str(score)
+            else:
+                score = do_simulation(code.to_s())
+                code.set_result(score)
+
             if (best_score == None or score > best_score):
                 best_score = score
                 best_code = code
