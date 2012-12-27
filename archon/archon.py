@@ -6,6 +6,7 @@
 import json
 
 class archon:
+    noMove = 0
     north = 1
     south = 2
     east = 3
@@ -34,8 +35,8 @@ class archon:
 
 class arena:
 
-    width = 10
-    height = 10
+    width = 100
+    height = 100
 
     def __init__(self):
         #create empty arena
@@ -278,6 +279,10 @@ class player:
     def move(self, direction):
         if (self.turn_used):
             return False
+
+        if (direction == archon.noMove):
+            self.direction = None
+            return True    
         
         next_location = archon.get_next_location(self.x, self.y, direction)
         if self.arena.get_item(next_location[0], next_location[1]) != 0:
