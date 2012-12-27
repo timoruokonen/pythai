@@ -3,6 +3,7 @@
 @package: Archon (Example game for AI)
 @author: Timo Ruokonen (timoruokonen)
 """
+
 from archon import *
 import unittest
 
@@ -319,6 +320,19 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_game_status_json(self):
         self.p2.set_location(6,2)
         print self.game.get_status_json()
+
+    def test_move_and_stop_player(self):
+        self.p1.move(archon.south)
+        self.advance_game(archon.player_speed)
+        self.advance_game(archon.player_speed)
+        self.assertEqual(0, self.p1.get_x())        
+        self.assertEqual(2, self.p1.get_y())
+        self.p1.move(archon.noMove)
+        self.advance_game(archon.player_speed)
+        self.assertEqual(0, self.p1.get_x())        
+        self.assertEqual(2, self.p1.get_y())
+
+
 
 
 if __name__ == '__main__':
