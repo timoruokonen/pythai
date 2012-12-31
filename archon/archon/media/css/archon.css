@@ -1,0 +1,48 @@
+#wrapper {
+}
+
+#myCanvas {
+	background-image: url("../img/background.png");
+}
+
+#leftside {
+    float: left;
+    background: red;
+    width: 600px;
+}
+
+#rightside {
+    float: right;
+    background: blue;
+    width: 30%;
+}
+
+#progressbar {
+    width: 200px;    
+}
+
+
+.progressbarcontainer {
+    display: block;
+}
+
+#popup {
+    padding: 15px;
+    color: #AC0909;
+    background: white;
+    position:absolute;
+    width: 300px;
+    height: 100px;
+    top: 100px;
+    left: 350px;
+    border: solid 10px #F5E4E4;  
+    text-align: center;
+    display: none;
+}
+
+#popup h2 {
+    margin: auto;
+}
+
+
+      
