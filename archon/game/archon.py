@@ -5,7 +5,7 @@
 """
 import json
 
-class archon:
+class archon(object):
     noMove = 0
     north = 1
     south = 2
@@ -33,7 +33,7 @@ class archon:
             return [x - 1, y]
 
 
-class arena:
+class arena(object):
 
     width = 100
     height = 100
@@ -107,7 +107,7 @@ class arena:
                     row += "X"
             print row
 
-class obstacle:
+class obstacle(object):
     def __init__(self):
         self.x = None
         self.y = None
@@ -124,7 +124,7 @@ class obstacle:
         pass
         #Obstacles are unbreakable!
 
-class bullet:
+class bullet(object):
     def __init__(self, arena, player, direction):
         self.arena = arena
         self.x = player.get_x()
@@ -134,6 +134,9 @@ class bullet:
         self.flying = True
         self.first = True
         self.hit = None
+
+    def get_number(self):
+        return self.number
 
     def advance(self):
         if not self.flying:
@@ -153,6 +156,7 @@ class bullet:
         else:
             self.flying = False
             self.hit = self.arena.get_item(next_location[0], next_location[1])
+            #print "Bullet hit at: ", next_location[0], next_location[1] 
             self.arena.clear(self.x, self.y)
 
         self.x = next_location[0]
@@ -170,7 +174,7 @@ class bullet:
     def get_y(self):
         return self.y
 
-class game:
+class game(object):
     def __init__(self):
         self.players = list()
         self.bullets = list()
@@ -183,12 +187,11 @@ class game:
         player.set_game(self)
         
     def advance(self):
-        #update players
         for player in self.players:
-            player.update()
-
+            if player.get_ai() != None:
+                player.get_ai().move_player_or_shoot()
         #avance bullets
-        bullets_copy = self.bullets
+        bullets_copy = list(self.bullets)
         for bullet in bullets_copy:
             bullet.advance()
             if not bullet.flying:
@@ -197,8 +200,15 @@ class game:
                 if (target != None):
                     print "Bullet hit!! " + str(target)
                     #print "Target is: " + str(target)
-                    target.hit(archon.bullet_hit_energy)
+                    if isinstance(target, type(player)): 
+                        target.hit(archon.bullet_hit_energy)
+                    elif isinstance(target, type(bullet)):
+                        target.flying = False 
                 self.bullets.remove(bullet)
+
+        #update players
+        for player in self.players:
+            player.update()
         
     def add_bullet(self, player, direction):
         b = bullet(self.arena, player, direction)
@@ -208,23 +218,107 @@ class game:
         status = {}
         
         players = []
+        bullets = []
+        for bullet in self.bullets:
+            bullets.append({"id": bullet.get_number(), "x": bullet.get_x(), "y": bullet.get_y() })
+        status["bullets"] = bullets
         for player in self.players:
-            players.append({"id": player.get_number(), "x": player.get_x(), "y": player.get_y() });
-        status["players"] = players;
+            players.append({"id": player.get_number(), "x": player.get_x(), "y": player.get_y(), "energy": player.get_energy() })
+        status["players"] = players
+        status["gameOver"] = self.is_game_over()
+        if self.is_game_over():
+            status["winner"] = self.get_winner().number
 
+    
         return json.dumps(status)
+    
+    def is_game_over(self):
+        for player in self.players:
+            if player.is_dead():
+                return True
+        return False
 
+    def get_winner(self):
+        if self.is_game_over():
+            for player in self.players:
+                if not player.is_dead():
+                    return player
+        return None
             
+class ai(object):
+    def __init__(self, player):
+        self.player = player
+        self.timer = 0
+
+    def move_player_or_shoot(self):
+        if (self.timer == 0) or (self.timer % 5 != 0):
+            if (self.player.get_direction() == archon.noMove) or (self.player.get_direction() == archon.south):
+                if self.player.get_y() < 80:
+                    self.player.move(archon.south)
+                    self.timer += 1
+                    return
+                else:
+                    self.player.move(archon.east)
+                    self.timer += 1
+                    return
+            elif self.player.get_direction() == archon.east:
+                if self.player.get_x() < 80:
+                    self.player.move(archon.east)
+                    self.timer += 1
+                    return
+                else:
+                    self.player.move(archon.north)
+                    self.timer += 1
+                    return
+            elif self.player.get_direction() == archon.north:
+                if self.player.get_y() > 20:
+                    self.player.move(archon.north)
+                    self.timer += 1
+                    return
+                else:
+                    self.player.move(archon.west)
+                    self.timer += 1
+                    return
+            else:
+                if self.player.get_x() > 20:
+                    self.player.move(archon.west)
+                    self.timer += 1
+                    return
+                else:
+                    self.player.move(archon.south)
+                    self.timer += 1
+                    return
+        else:
+            if self.player.get_direction() == archon.south:
+                self.player.fire(archon.east)
+                self.timer += 1
+                return
+            elif self.player.get_direction() == archon.east:
+                self.player.fire(archon.north)
+                self.timer += 1
+                return
+            elif self.player.get_direction() == archon.north:
+                self.player.fire(archon.west)
+                self.timer += 1
+                return
+            elif self.player.get_direction() == archon.west:
+                self.player.fire(archon.south)
+                self.timer += 1
+                return
+            else:
+                self.player.fire(archon.noMove)
+                self.timer += 1
+                return
 
 
-class player:
+class player(object):
 
     def __init__(self, number):
         self.x = None
         self.y = None
         self.number = number
         self.energy = archon.player_initial_energy
-
+        
         self.last_fired_timeout = 0
 
         self.turn_used = False
@@ -232,6 +326,11 @@ class player:
         self.move_timeout = 0
         self.direction = None
 
+        self.ai = None
+
+    def get_ai(self):
+        return self.ai
+    
     def set_arena(self, arena):
         self.arena = arena
 
@@ -239,6 +338,8 @@ class player:
         self.game = game
 
     def set_location(self, x, y):
+        if (self.x != None):
+            self.arena.clear(self.x, self.y)
         self.x = x
         self.y = y
         self.arena.occupy(x, y, self)
@@ -252,6 +353,9 @@ class player:
 
     def is_dead(self):
         return self.energy < 0
+
+    def get_direction(self):
+        return self.direction
 
     def get_x(self):
         return self.x
@@ -271,6 +375,8 @@ class player:
             print str(self) + " is DEAD!"
 
     def fire(self, direction):
+        if (direction == archon.noMove):
+            return 
         if (not self.turn_used and self.last_fired_timeout <= 0):
             self.game.add_bullet(self, direction)
             self.last_fired_timeout = archon.fire_timeout_in_rounds
@@ -280,8 +386,13 @@ class player:
         if (self.turn_used):
             return False
 
+        #if (self.move_timeout > 0):
+        #    return
+
         if (direction == archon.noMove):
+            self.move_timeout = archon.player_speed
             self.direction = None
+            self.turn_used = True    
             return True    
         
         next_location = archon.get_next_location(self.x, self.y, direction)
@@ -296,14 +407,15 @@ class player:
         return True
 
     def _update_movement(self):
-        if (self.direction == None):
-            return 
         self.move_timeout -= 1
         if (self.move_timeout > 0):
             return
 
+        if (self.direction == None):
+            return 
+
         next_location = archon.get_next_location(self.x, self.y, self.direction)
-        #print "Trying to move: ", next_location[0], next_location[1]
+        #print "Trying to move player: ", next_location[0], next_location[1]
         if self.arena.occupy(next_location[0], next_location[1], self):
             self.arena.clear(self.x, self.y)
             self.x = next_location[0]
@@ -319,10 +431,10 @@ if __name__ == '__main__':
     arena = arena()
     p = player(1)
     p.set_arena(arena)
-    p.set_location(0,0)
+    p.set_location(3,6)
     p2 = player(2)
     p2.set_arena(arena)
-    p2.set_location(3,6)
+    p2.set_location(0,0)
 
     #print arena.arena[0][0]
     #print arena.arena[arena.height - 1][arena.width - 1]

@@ -111,7 +111,19 @@ class TestSequenceFunctions(unittest.TestCase):
         self.advance_game(1)
         self.assertEqual(1, len(self.game.bullets)) 
         self.advance_game(1)
-        self.assertEqual(0, len(self.game.bullets))  
+        self.assertEqual(0, len(self.game.bullets))
+        
+    def test_game_players_fire_each_other(self):
+        self.p1.set_location(3,1)
+        self.p2.set_location(3,4)
+
+        #player 1 shoots player 2 and player 2 shoots player 1
+        self.p1.fire(archon.south)
+        self.p2.fire(archon.north)
+        self.advance_game(2)
+        self.assertEqual(0, len(self.game.bullets))
+        self.assertFalse(self.game.is_game_over()) 
+  
 
     def test_game_fire_bullet_and_hit(self):
         self.p1.set_location(3,1)
@@ -134,6 +146,7 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(0, len(self.game.bullets)) 
         self.assertEqual(archon.player_initial_energy - archon.bullet_hit_energy, self.p2.get_energy()) 
         self.assertFalse(self.p2.is_dead())
+        self.assertFalse(self.game.is_game_over())
 
         #kill the player 2 by shooting again
         self.p1.fire(archon.south)
@@ -141,7 +154,21 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(0, len(self.game.bullets)) 
         self.assertEqual(archon.player_initial_energy -  2 * archon.bullet_hit_energy, self.p2.get_energy()) 
         self.assertTrue(self.p2.is_dead())
+        self.assertTrue(self.game.is_game_over())
+    
+    def test_game_fire_bullet_and_hit_in_corners(self):
+        print "test start"
+        self.p1.set_location(3,0)
+        self.p2.set_location(0,0)
 
+        #player 1 shoots player 2
+        self.p1.fire(archon.west)
+        self.advance_game(5)
+        self.assertEqual(0, len(self.game.bullets)) 
+        self.assertEqual(archon.player_initial_energy - archon.bullet_hit_energy, self.p2.get_energy()) 
+        self.assertFalse(self.p2.is_dead())
+       
+    
     def test_game_fire_bullet_and_hit_both_ways(self):
         self.p1.set_location(3,1)
         self.p2.set_location(3,4)
@@ -162,15 +189,17 @@ class TestSequenceFunctions(unittest.TestCase):
         #player 1 shoots and misses
         self.p1.fire(archon.west)
         self.advance_game(10)
+        self.assertEqual(None, self.game.get_winner())
 
         #player 2 kills player 1 by shooting again
         self.p2.fire(archon.west)
         self.advance_game(10)
         self.assertEqual(archon.player_initial_energy -  2 * archon.bullet_hit_energy, self.p1.get_energy()) 
         self.assertTrue(self.p1.is_dead())
+        self.assertEqual(self.p2, self.game.get_winner())
 
     def test_game_fire_bullet_and_dodge(self):
-        p1_start_x = 2 + archon.player_speed + 1
+        p1_start_x = 2 + archon.player_speed + 2
         self.p1.set_location(p1_start_x, 1)
         self.p2.set_location(2, 1)
 
@@ -186,10 +215,10 @@ class TestSequenceFunctions(unittest.TestCase):
         self.advance_game(archon.player_speed)
         self.assertEqual(archon.player_initial_energy, self.p2.get_energy()) 
         self.assertEqual(1, len(self.game.bullets))
-        self.assertTrue(isinstance(self.a.get_item(2, 1), bullet))
+        self.assertTrue(isinstance(self.a.get_item(3, 1), bullet))
 
         #bullet continues flying until hits the wall
-        self.advance_game(2)
+        self.advance_game(3)
         self.assertEqual(1, len(self.game.bullets))
         self.advance_game(1)
         self.assertEqual(0, len(self.game.bullets))
@@ -332,7 +361,10 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(0, self.p1.get_x())        
         self.assertEqual(2, self.p1.get_y())
 
-
+    def test_shoot_noMove(self):
+        self.assertFalse(self.p1.fire(archon.noMove))
+        self.advance_game(1)
+                
 
 
 if __name__ == '__main__':
