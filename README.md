@@ -1,8 +1,18 @@
 pythai
 ==========================================================================
-Pythai is an artificial intellegence project. The ultimate goal is yet
-unclear but it will hopefully clarify at some point :) Currently it only contains
-some basic genetic programming and a nice car game. 
+Pythai is an artificial intellegence project written with Python. The ultimate goal is yet
+unclear but it will hopefully clarify at some point :) Currently it contains
+a basic genetic programming library and a nice car game that utilies genetic programming. 
+A second game called Archon has been already added with a Javascript GUI
+(thanks to satusuuronen) but it doesn't yet use genetic programming.
+
+Contents of the Project:
+-----------------------------------------------------
+* archon - Simple shootup game that has a Javascript/Django web UI (built by satusuuronen) and Python back-end. 
+Genetic programming is not yet integrated to this game.
+* gp - Genetic programming library for Python. 
+* car_tester.py - Car game tester without AI. Written by jruokonen.
+* car_game_ai_generator - Uses genetic programming library to find algoritgh for the car game.
 
 Main language in this project is python 2.x.
 
@@ -18,7 +28,7 @@ http://numpy.scipy.org/
 Usage:
 ==========================================================================
 
-**Playing the Game:**
+**Playing the Car Game:**
 
 You can play the great car game and try to beat the computer times!
 
