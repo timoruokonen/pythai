@@ -6,6 +6,8 @@ a basic genetic programming library and a nice car game that utilies genetic pro
 A second game called Archon has been already added with a Javascript GUI
 (thanks to satusuuronen) but it doesn't yet use genetic programming.
 
+Next step is to take GP into use with archon game.
+
 Contents of the Project:
 -----------------------------------------------------
 * archon - Simple shootup game that has a Javascript/Django web UI (built by satusuuronen) and Python back-end. 
